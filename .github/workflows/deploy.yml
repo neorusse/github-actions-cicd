@@ -35,6 +35,13 @@ jobs:
 
       - name: Build
         run: npm run build --if-present
+
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v3
+        with:
+          name: production
+          path: ./build
+          retention-days: 2 # customize artifact retention period. default: 90 days
   
   github-pages-deploy:
     needs: build-test
@@ -42,6 +49,12 @@ jobs:
     # look at the ref and only run this job if the branch that triggered the workflow is "dev"
     if: endswith(github.ref, 'dev')
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: production
+          path: ./build
+
       - name: Deploy to GitHub Pages
         uses: crazy-max/ghaction-github-pages@v1
         with:
@@ -56,11 +69,16 @@ jobs:
     # look at the ref and only run this job if the branch that triggered the workflow is master
     if: endswith(github.ref, 'main')
     steps:
-      - name: Deploy to netlify
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: production
+          path: ./build
+
+      - name: Deploy to Netlify
         uses: netlify/actions/cli@master
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         with:
           args: deploy --dir=build --prod
-          secrets: '["NETLIFY_AUTH_TOKEN", "NETLIFY_SITE_ID"]'
