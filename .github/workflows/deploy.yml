@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [16.x]
 
     # Steps in job
     steps:
@@ -66,7 +66,7 @@ jobs:
   netlify-deploy:
     needs: build-test
     runs-on: ubuntu-latest
-    # look at the ref and only run this job if the branch that triggered the workflow is master
+    # look at the ref and only run this job if the branch that triggered the workflow is main
     if: endswith(github.ref, 'main')
     steps:
       - name: Download artifact
