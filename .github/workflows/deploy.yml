@@ -1,11 +1,11 @@
 # Name of workflow
-name: Development workflow
+name: Deploy to Netlify
 
 # When workflow is triggered
 on:
-  pull_request:
+  push:
     branches:
-      - dev
+      - 'main'
 
 # Jobs to carry out
 jobs:
