@@ -4,29 +4,58 @@ name: Deploy to Netlify
 # When workflow is triggered
 on:
   push:
-    branches:
-      - 'main'
+    branches: [main, dev]
 
 # Jobs to carry out
 jobs:
-  deploy:
+  build-test:
     # Operating system to run job on
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [12.x]
+
     # Steps in job
     steps:
-      # Get code from repo
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v1
+
       # Install NodeJS
-      - name: Use Node.js 12.x
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: 12.x
-      # Run npm install and build on our code
-      - run: npm install
-      - run: npm run build --if-present
-      # Deploy to Netlify using our dev secrets
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run the tests
+        run: npm test
+
+      - name: Build
+        run: npm run build --if-present
+  
+  github-pages-deploy:
+    needs: build-test
+    runs-on: ubuntu-latest
+    # look at the ref and only run this job if the branch that triggered the workflow is "dev"
+    if: endswith(github.ref, 'dev')
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: crazy-max/ghaction-github-pages@v1
+        with:
+          target_branch: gh-pages
+          build_dir: build
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+
+  netlify-deploy:
+    needs: build-test
+    runs-on: ubuntu-latest
+    # look at the ref and only run this job if the branch that triggered the workflow is master
+    if: endswith(github.ref, 'master')
+    steps:
       - name: Deploy to netlify
         uses: netlify/actions/cli@master
         env:
