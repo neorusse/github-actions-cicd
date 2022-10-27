@@ -54,7 +54,7 @@ jobs:
     needs: build-test
     runs-on: ubuntu-latest
     # look at the ref and only run this job if the branch that triggered the workflow is master
-    if: endswith(github.ref, 'master')
+    if: endswith(github.ref, 'main')
     steps:
       - name: Deploy to netlify
         uses: netlify/actions/cli@master
