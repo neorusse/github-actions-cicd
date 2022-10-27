@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          DevOps/Site Reliability Engineer
+          DevOps and Site Reliability Engineer
         </a>
       </header>
     </div>
